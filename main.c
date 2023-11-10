@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "biblioteca.h"
 
+
 int main() {
     struct Tarefa tarefas[MAX_TAREFAS];
     int numTarefas = 0; // Inicialize numTarefas com zero
@@ -15,7 +16,8 @@ int main() {
         printf("1. Cadastrar tarefa\n");
         printf("2. Listar tarefas\n");
         printf("3. Deletar tarefa\n");
-        printf("4. Sair\n");
+        printf("4. Exportar tarefas\n");
+        printf("5. Sair\n");
         scanf("%d", &opcao);
 
         switch (opcao) {
@@ -32,10 +34,13 @@ int main() {
                     scanf("%d", &indice);
                     deletarTarefa(tarefas, &numTarefas, indice - 1);
                 } else {
-                    printf("Não há tarefas cadastradas.\n");
+                    printf("Nao ha tarefas cadastradas.\n");
                 }
                 break;
             case 4:
+                exportar(tarefas, &numTarefas);
+                break;
+            case 5:
                 salvarTarefa(tarefas, numTarefas);
                 return 0;
             default:
