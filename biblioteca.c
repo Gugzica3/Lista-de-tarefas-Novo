@@ -4,6 +4,7 @@
 
 #include "biblioteca.h"
 #include <stdio.h>
+#include <string.h>
 
 void salvarTarefa(struct Tarefa tarefas[], int nTarefas) {
     FILE *arquivo;
@@ -50,12 +51,27 @@ void cadastrarTarefa(struct Tarefa tarefas[], int *nTarefas) {
         struct Tarefa novaTarefa;
         printf("Qual a prioridade da tarefa (0-10): ");
         scanf("%d", &novaTarefa.prioridade);
+
         printf("Descreva a tarefa: ");
         scanf(" %[^\n]", novaTarefa.descricao);
+
         printf("Informe a categoria da tarefa: ");
         scanf(" %[^\n]", novaTarefa.categoria);
-        printf("Informe a estado da tarefa: ");
-        scanf(" %[^\n]", novaTarefa.estado);
+
+        int Hestado = 0;
+        //Segura o estado em formato de número para o cliente não ter que escrever o estado da tarefa
+        printf("Informe a estado da tarefa:\n 1.Completo\n 2.Em andamento\n 3.Nao iniciado\n  ");
+        scanf("%d", &Hestado);
+
+        if (Hestado == 1) {
+            strcpy(novaTarefa.estado, "Completo");
+        } else if (Hestado == 2) {
+            strcpy(novaTarefa.estado, "Em andamento");
+        } else if (Hestado == 3) {
+            strcpy(novaTarefa.estado, "Nao iniciado");
+        }
+
+
         novaTarefa.ndtarefa = *nTarefas + 1;
 
         tarefas[*nTarefas] = novaTarefa;
@@ -78,40 +94,45 @@ void listarTarefas(struct Tarefa tarefas[], int *nTarefas) {
         printf("Prioridade: %d\n", tarefas[i].prioridade);
         printf("Descricao: %s\n", tarefas[i].descricao);
         printf("Categoria: %s\n", tarefas[i].categoria);
+        printf("Estado: %s\n", tarefas[i].estado);
         printf("\n");
     }
-        int opcao;
-        while(1){
-            printf("Escolha uma opcao:\n");
-            printf("1. Editar tarefa\n");
-            printf("2. Filtrar por prioridade\n");
-            printf("3. Filtrar por estado\n");
-            printf("4. Filtrar por categoria\n");
-            printf("5. Sair\n");
+    int opcao;
+    while (1) {
+        printf("Escolha uma opcao:\n");
+        printf("1. Editar tarefa\n");
+        printf("2. Filtrar por prioridade\n");
+        printf("3. Filtrar por estado\n");
+        printf("4. Filtrar por categoria\n");
+        printf("5. Filtrar por categoria e prioridade\n");
+        printf("6. Sair\n");
 
-            scanf("%d", &opcao);
+        scanf("%d", &opcao);
 
-            switch (opcao) {
-                case 1:
-                    editar();
-                    return;
-                case 2:
-                    fprioridade(tarefas, nTarefas);
-                    return;
-                case 3:
-                    festado(tarefas, nTarefas);
-                    return;
-                case 4:
-                    fcategoria(tarefas, nTarefas);
-                    return;
-                case 5:
-                    return;
-                default:
-                    printf("Opcao invalida. Tente novamente.\n");
-                    return;
-            }
-
+        switch (opcao) {
+            case 1:
+                editar(tarefas, nTarefas);
+                return;
+            case 2:
+                fprioridade(tarefas, nTarefas);
+                return;
+            case 3:
+                festado(tarefas, nTarefas);
+                return;
+            case 4:
+                fcategoria(tarefas, nTarefas);
+                return;
+            case 5:
+                fcateridade(tarefas, nTarefas);
+                return;
+            case 6:
+                return;
+            default:
+                printf("Opcao invalida. Tente novamente.\n");
+                return;
         }
+
+    }
 }
 
 //Essa função mostra uma lista de tarefas. Ela imprime cada tarefa na tela, uma por uma.
@@ -119,12 +140,12 @@ void listarTarefas(struct Tarefa tarefas[], int *nTarefas) {
 
 
 
-void deletarTarefa(struct Tarefa tarefas[], int *nTarefas, int indice){
+void deletarTarefa(struct Tarefa tarefas[], int *nTarefas, int indice) {
     if (indice >= 0 && indice < *nTarefas) {
         for (int i = indice; i < *nTarefas - 1; i++) {
             tarefas[i] = tarefas[i + 1];
         }
-        (*nTarefas)-- ;
+        (*nTarefas)--;
         salvarTarefa(tarefas, *nTarefas); // Salva as tarefas no arquivo após deletar uma
         printf("Tarefa deletada com sucesso!\n");
     } else {
@@ -137,48 +158,242 @@ void deletarTarefa(struct Tarefa tarefas[], int *nTarefas, int indice){
 // Em seguida, ela diminui o contador de tarefas em 1 para refletir a exclusão e salva a lista atualizada no arquivo
 
 //FILTROS
-void editar(){
 
+
+//Edita as tarefas
+void editar(struct Tarefa *tarefas, const int *nTarefas) {
+    int op;
+    int tarefaedit;
+    int nestado;
+    printf("Qual o id da tarefa que voce quer editar?\n");
+    scanf("%d", &tarefaedit);
+    // - 1 pois o id da tarefa anteriormente foi adicionado 1 para fins de embelezamento
+    tarefaedit = tarefaedit - 1;
+
+    printf("Qual funcao voce quer editar?\n");
+    printf("1. editar prioridade\n");
+    printf("2. editar estado\n");
+    printf("3. editar categoria\n");
+    printf("4. editar descricao\n");
+    printf("5. voltar\n");
+    scanf("%d", &op);
+
+    switch (op) {
+        case 1:
+            printf("Qual a nova prioridade?");
+            scanf("%d", &tarefas[tarefaedit].prioridade);
+            return;
+        case 2:
+            printf("Informe o novo estado da tarefa:\n 1.Completo\n 2.Em andamento\n 3.Nao iniciado\n  ");
+            scanf("%d", &nestado);
+
+            if (nestado == 1) {
+                strcpy(tarefas[tarefaedit].estado, "Completo");
+            } else if (nestado == 2) {
+                strcpy(tarefas[tarefaedit].estado, "Em andamento");
+            } else if (nestado == 3) {
+                strcpy(tarefas[tarefaedit].estado, "Nao iniciado");
+            }
+            return;
+        case 3:
+            printf("Qual a nova categoria?");
+            scanf("%s", tarefas[tarefaedit].categoria);
+            return;
+        case 4:
+            printf("Qual a nova descricao?");
+            scanf("%s", tarefas[tarefaedit].descricao);
+            return;
+    }
 }
-void fprioridade(struct Tarefa tarefas[],const int *nTarefas){
+
+
+// filtra por prioridade
+void fprioridade(struct Tarefa tarefas[], const int *nTarefas) {
     int filtro;
-    printf("Qual prioridade você quer filtrar?\n");
+    printf("Qual prioridade voce quer filtrar?\n");
     scanf("%d", &filtro);
     for (int i = 0; i < *nTarefas; i++) {
-        if(tarefas[i].prioridade == filtro){
+        if (tarefas[i].prioridade == filtro) {
             printf("Tarefa %d\n", tarefas[i].ndtarefa);
             printf("Prioridade: %d\n", tarefas[i].prioridade);
             printf("Descricao: %s\n", tarefas[i].descricao);
             printf("Categoria: %s\n", tarefas[i].categoria);
+            printf("Estado: %s\n", tarefas[i].estado);
             printf("\n");
         }
 
     }
 
 }
-void festado(struct Tarefa tarefas[],int *nTarefas){
+
+// filtra por estado
+void festado(struct Tarefa tarefas[], int *nTarefas) {
     int filtro;
-    printf("Qual prioridade você quer filtrar?\n");
+    char filtroL[20];
+    printf("Qual estado voce quer filtrar?\n 1.Completo\n 2.Em andamento\n 3.Nao iniciado\n");
     scanf("%d", &filtro);
+
+    if (filtro == 1) {
+        strcpy(filtroL, "Completo");
+    } else if (filtro == 2) {
+        strcpy(filtroL, "Em andamento");
+    } else if (filtro == 3) {
+        strcpy(filtroL, "Nao iniciado");
+    }
+
     for (int i = 0; i < *nTarefas; i++) {
-        if(tarefas[i].estado == filtro)
+        if (strcmp(tarefas[i].estado, filtroL) == 0) {
             printf("Tarefa %d\n", tarefas[i].ndtarefa);
-        printf("Prioridade: %d\n", tarefas[i].prioridade);
-        printf("Descricao: %s\n", tarefas[i].descricao);
-        printf("Categoria: %s\n", tarefas[i].categoria);
-        printf("\n");
+            printf("Prioridade: %d\n", tarefas[i].prioridade);
+            printf("Descricao: %s\n", tarefas[i].descricao);
+            printf("Categoria: %s\n", tarefas[i].categoria);
+            printf("Estado: %s\n", tarefas[i].estado);
+            printf("\n");
+        }
     }
 }
-void fcategoria(struct Tarefa tarefas[],int *nTarefas){
-    int filtro;
-    printf("Qual prioridade você quer filtrar?\n");
-    scanf("%d", &filtro);
+
+// filtra por categoria
+void fcategoria(struct Tarefa tarefas[], int *nTarefas) {
+
+    char filtro[100];
+
+    printf("Qual categoria voce quer filtrar?\n");
+    scanf("%s", filtro);
+    getchar();
+
     for (int i = 0; i < *nTarefas; i++) {
-        if(tarefas[i].categoria == filtro)
+        if (strcmp(tarefas[i].categoria, filtro) == 0) {
             printf("Tarefa %d\n", tarefas[i].ndtarefa);
-        printf("Prioridade: %d\n", tarefas[i].prioridade);
-        printf("Descricao: %s\n", tarefas[i].descricao);
-        printf("Categoria: %s\n", tarefas[i].categoria);
-        printf("\n");
+            printf("Prioridade: %d\n", tarefas[i].prioridade);
+            printf("Descricao: %s\n", tarefas[i].descricao);
+            printf("Categoria: %s\n", tarefas[i].categoria);
+            printf("Estado: %s\n", tarefas[i].estado);
+            printf("\n");
+        }
+    }
+}
+
+// cateridade = categoria-prioridade
+void fcateridade(struct Tarefa tarefas[], int *nTarefas) {
+
+    char filtro[100];
+
+    printf("Qual categoria voce quer filtrar?\n");
+    scanf("%s", filtro);
+    getchar();
+
+    int filtroP;
+    printf("Qual prioridade voce quer filtrar?\n");
+    scanf("%d", &filtroP);
+
+    for (int i = 0; i < *nTarefas; i++) {
+        if (strcmp(tarefas[i].categoria, filtro) == 0 && tarefas[i].prioridade == filtroP) {
+            printf("Tarefa %d\n", tarefas[i].ndtarefa);
+            printf("Prioridade: %d\n", tarefas[i].prioridade);
+            printf("Descricao: %s\n", tarefas[i].descricao);
+            printf("Categoria: %s\n", tarefas[i].categoria);
+            printf("Estado: %s\n", tarefas[i].estado);
+            printf("\n");
+        }
+    }
+}
+
+// EXPORTAÇÕES
+void exportaprio(struct Tarefa tarefas[], int *nTarefas) {
+    int filtro;
+    printf("Qual prioridade voce quer exportar?\n");
+    scanf("%d", &filtro);
+
+    FILE *arqprio;
+    arqprio = fopen("prioridade.txt", "wb");
+
+    if (arqprio != NULL) {
+        for (int i = 0; i < *nTarefas; i++) {
+            if (tarefas[i].prioridade == filtro) {
+                fprintf(arqprio, "%d, %s, %s, %s\n", tarefas[i].prioridade, tarefas[i].categoria, tarefas[i].estado,
+                        tarefas[i].descricao);
+            }
+        }
+        fclose(arqprio);
+        printf("Tarefas com prioridade %d exportadas com sucesso para o arquivo 'prioridade.txt'.\n", filtro);
+    }
+    else {
+        printf("Erro ao criar o arquivo de exportacao.\n");
+    }
+}
+
+void exportacat(struct Tarefa tarefas[], int *nTarefas) {
+    char filtro[100];
+    printf("Qual categoria voce quer exportar?\n");
+    scanf("%s", filtro);
+
+    FILE *arqcat;
+    arqcat = fopen("categoria.txt", "wb");
+
+    if (arqcat != NULL) {
+        for (int i = 0; i < *nTarefas; i++) {
+            if (strcmp(tarefas[i].categoria, filtro) == 0) {
+                fprintf(arqcat, "%d, %s, %s, %s\n", tarefas[i].prioridade, tarefas[i].categoria, tarefas[i].estado,
+                        tarefas[i].descricao);
+            }
+        }
+        fclose(arqcat);
+        printf("Tarefas com categorias %s exportadas com sucesso para o arquivo 'categoria.txt'.\n", filtro);
+    } else {
+        printf("Erro ao criar o arquivo de exportacao.\n");
+    }
+}
+
+
+void exportacatprio(struct Tarefa tarefas[], int *nTarefas) {
+    char filtroC[100];
+    printf("Qual categoria voce quer exportar?\n");
+    scanf("%s", filtroC);
+
+    int filtroP;
+    printf("Qual prioridade voce quer exportar?\n");
+    scanf("%d", &filtroP);
+
+
+    FILE *arqcat;
+    arqcat = fopen("categoria_e_prioridade.txt", "wb");
+
+    if (arqcat != NULL) {
+        for (int i = 0; i < *nTarefas; i++) {
+            if (tarefas[i].prioridade == filtroP && strcmp(tarefas[i].categoria, filtroC) == 0) {
+                fprintf(arqcat, "%d, %s, %s, %s\n", tarefas[i].prioridade, tarefas[i].categoria, tarefas[i].estado,
+                        tarefas[i].descricao);
+            }
+        }
+        fclose(arqcat);
+        printf("Tarefas com prioridade %d e categorias %s exportadas com sucesso para o arquivo 'categoria_e_prioridade.txt'.\n",
+               filtroP, filtroC);
+    } else {
+        printf("Erro ao criar o arquivo de exportacao.\n");
+    }
+}
+
+void exportar(struct Tarefa tarefas[], int *nTarefas) {
+    int opcao;
+    printf("Qual funcao voce quer editar?\n");
+    printf("1. Exportar prioridade\n");
+    printf("2. Exportar categoria\n");
+    printf("3. Exportar categoria e prioridade\n");
+    printf("4. Sair\n");
+    scanf("%d", &opcao);
+
+    switch (opcao) {
+        case 1:
+            exportaprio(tarefas, nTarefas);
+            return;
+        case 2:
+            exportacat(tarefas, nTarefas);
+            return;
+        case 3:
+            exportacatprio(tarefas, nTarefas);
+            return;
+        case 4:
+            return;
     }
 }
